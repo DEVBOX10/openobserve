@@ -2889,12 +2889,11 @@ export default defineComponent({
 
       try{
         searchSchedulerJob.value = false
+        if(searchObj.meta.jobId != ""){
+          searchObj.meta.jobId = "";
+        }
         await getJobData();
-      }
-      catch (e){
-        return;
-      }
-      $q.notify({
+        $q.notify({
         type: "positive",
         message: "Job Added Succesfully",
         timeout: 10000,
@@ -2906,6 +2905,16 @@ export default defineComponent({
           },
         ],
       });
+      }
+      catch (e){
+        $q.notify({
+          type: "negative",
+          message: "Error while adding job",
+          timeout: 10000,
+        });
+        return;
+      }
+
     };
 
     const routeToSearchSchedule = () => {
