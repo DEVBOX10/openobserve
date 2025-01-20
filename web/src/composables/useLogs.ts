@@ -1882,7 +1882,11 @@ const useLogs = () => {
               },
               "UI",
             ).then((res: any) => {
-                console.log(res, "res");
+                searchObj.data.histogram.chartParams.title = getHistogramTitle();
+            }).catch((e)=>{
+              searchObj.data.histogram.chartParams.title = getHistogramTitle();
+              console.log(e,'error')
+
             })
             }
             else {
@@ -1931,6 +1935,7 @@ const useLogs = () => {
   }
 
   function generateHistogramSkeleton() {
+
     if (
       searchObj.data.queryResults.hasOwnProperty("aggs") &&
       searchObj.data.queryResults.aggs
@@ -4003,6 +4008,7 @@ const useLogs = () => {
       delete queryParams.type;
     }
     // TODO OK : Replace push with replace and test all scenarios
+    console.log("queryParams", queryParams);
     router.push({
       query: {
         ...queryParams,

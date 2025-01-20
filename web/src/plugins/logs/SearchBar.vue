@@ -1336,7 +1336,8 @@ export default defineComponent({
     watch(
       () => searchObj.meta.showHistogram,
       (val) => {
-        if(val == true && searchObj.meta.jobId != ""){
+        
+        if(val == true && searchObj.meta.jobId != ""  ){
           $q.notify({
               message: "Histogram is not available for scheduled search",
               color: "negative",
@@ -1346,6 +1347,7 @@ export default defineComponent({
             searchObj.meta.showHistogram = false;
             searchObj.loadingHistogram = false;
         }
+        
       },
       { immediate: true, deep: true },
     );
