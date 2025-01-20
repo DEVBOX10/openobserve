@@ -474,6 +474,7 @@ export default defineComponent({
         if(this.searchObj.meta.jobId == ""){
           await this.getQueryData(true);
           this.refreshHistogramChart();
+
         }
         else{
           await this.getJobData(false);
@@ -761,6 +762,7 @@ export default defineComponent({
           resetStreamData();
           await restoreUrlQueryParams();
           await loadLogsData();
+          console.log(searchObj.data.queryResults.pagination,'refreshed pagination part 1')
         }
       },
     );
