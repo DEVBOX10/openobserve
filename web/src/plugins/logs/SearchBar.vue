@@ -1106,7 +1106,9 @@ import {
   useLocalSavedView,
   queryIndexSplit,
   timestampToTimezoneDate,
+  b64EncodeUnicode,
 } from "@/utils/zincutils";
+
 import savedviewsService from "@/services/saved_views";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { cloneDeep } from "lodash-es";
@@ -1334,6 +1336,24 @@ export default defineComponent({
       { immediate: true, deep: true },
     );
     watch(
+      () => searchObj.meta.functionEditorPlaceholderFlag,
+      (val) => {
+        if (searchObj.meta.jobId != "" && val == true) {
+          if (!checkFnQuery(searchObj.data.tempFunctionContent)) {
+            $q.notify({
+              message: "Job Context have been removed",
+              color: "negative",
+              position: "bottom",
+              timeout: 2000,
+            });
+            searchObj.meta.jobId = "";
+            getQueryData(false);
+          }
+        }
+      },
+      { immediate: true, deep: true },
+    );
+    watch(
       () => searchObj.meta.showHistogram,
       (val) => {
         
@@ -1358,6 +1378,7 @@ export default defineComponent({
       },
       { immediate: true, deep: true },
     );
+
 
     onBeforeMount(async () => {
       await importSqlParser();
@@ -1407,6 +1428,12 @@ export default defineComponent({
     };
 
     const updateQueryValue = (value: string) => {
+      // if (searchObj.meta.jobId != "") {
+      //   searchObj.meta.jobId = "";
+      //   getQueryData(false);
+      // }
+
+
       searchObj.data.editorValue = value;
       if (searchObj.meta.quickMode === true) {
         const parsedSQL = fnParsedSQL();
@@ -1515,9 +1542,26 @@ export default defineComponent({
             }
           }
         }
+        //here we reset the job id if user change the query and move outside of the editor
+        if (
+          searchObj.meta.jobId != "" &&
+          searchObj.meta.queryEditorPlaceholderFlag == true
+        ) {
+          if (!checkQuery(value)) {
+            $q.notify({
+              message: "Job Context have been removed",
+              color: "negative",
+              position: "bottom",
+              timeout: 2000,
+            });
+            searchObj.meta.jobId = "";
+            getQueryData(false);
+          }
+       }
       } catch (e) {
         console.log(e, "Logs: Error while updating query value");
       }
+
     };
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -2897,7 +2941,15 @@ export default defineComponent({
           });
           return;
         }
-        searchSchedulerJob.value = false
+        if(searchObj.meta.jobId != ""){
+          $q.notify({
+            type: "negative",
+            message: "Job Already Scheduled , please change some parameters to schedule new job",
+            timeout: 10000,
+          });
+          return;
+        }
+        searchSchedulerJob.value = false;
 
         await getJobData();
         $q.notify({
@@ -2936,6 +2988,21 @@ export default defineComponent({
     const createScheduleJob = () => {
       searchSchedulerJob.value = true;
       searchObj.meta.jobRecords = 100;
+    }
+
+    const checkQuery = (query) => {
+      const jobQuery = router.currentRoute.value.query.query;
+      if (jobQuery == b64EncodeUnicode(query)) {
+        return true;
+      }
+      return false;
+    }
+    const checkFnQuery = (fnQuery) => {
+      const jobFnQuery = router.currentRoute.value.query.functionContent;
+      if (jobFnQuery == b64EncodeUnicode(fnQuery)) {
+        return true;
+      }
+      return false;
     }
 
     // [END] cancel running queries
@@ -3033,6 +3100,8 @@ export default defineComponent({
       addJobScheduler,
       routeToSearchSchedule,
       createScheduleJob,
+      checkQuery,
+      checkFnQuery,
     };
   },
   computed: {
