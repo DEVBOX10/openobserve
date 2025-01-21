@@ -1338,7 +1338,12 @@ export default defineComponent({
     watch(
       () => searchObj.meta.functionEditorPlaceholderFlag,
       (val) => {
-        if (searchObj.meta.jobId != "" && val == true) {
+        console.log(searchObj.data.tempFunctionContent,'temp')
+        if (
+          searchObj.meta.jobId != "" &&
+          val == true &&
+          (router.currentRoute.value.query.functionContent || searchObj.data.tempFunctionContent != "")
+        ) {
           if (!checkFnQuery(searchObj.data.tempFunctionContent)) {
             $q.notify({
               message: "Job Context have been removed",
